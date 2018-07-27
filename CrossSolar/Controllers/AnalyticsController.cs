@@ -74,11 +74,16 @@ namespace CrossSolar.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
+            var panel = await _panelRepository.Query()
+                .FirstOrDefaultAsync(x => x.Serial.Equals(panelId, StringComparison.CurrentCultureIgnoreCase));
+
+            if (panel == null) return NotFound();
+
             var oneHourElectricityContent = new OneHourElectricity
             {
                 PanelId = panelId,
                 KiloWatt = value.KiloWatt,
-                DateTime = value.DateTime
+                DateTime = DateTime.UtcNow
             };
 
             await _analyticsRepository.InsertAsync(oneHourElectricityContent);
